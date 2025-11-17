@@ -59,7 +59,9 @@
 </head>
 <body>
   <div class="container">
-    <h2>Weather App (HTML + CSS + JS)</h2>
+    <h2>Weather App</h2>
+    <p><strong>Built by: Arnav Anand</strong></p>
+    <button onclick="showInfo()" style="background:#16a34a; padding:8px 14px; border-radius:6px; color:white; border:none; cursor:pointer; margin-bottom:10px;">About PM Accelerator</button>
     <p>Enter city / ZIP / landmark / coordinates (lat,lon)</p>
 
     <div style="display:flex; gap:10px;">
@@ -183,6 +185,9 @@
           document.getElementById("error").innerText = err.message;
         }
       );
+    }
+      function showInfo() {
+      alert(`PM Accelerator Program:\n\nThe Product Manager Accelerator Program is designed to support PM professionals through every stage of their careers. From students seeking entry-level positions to Directors aiming for leadership roles, the program has successfully helped hundreds achieve their career goals.\n\nOur community is ambitious, committed, and continuously growing. Through the program, members learn, refine, and develop strong PM and leadership skills that form the foundation of their future success.`);
     }
   </script>
 </body>
