@@ -93,6 +93,63 @@
         cursor: pointer;
         width: 45px;
     }
+    /* Modern Colorful Enhancements */
+    .forecast-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .card {
+        padding: 15px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .card:hover {
+        transform: translateY(-5px) scale(1.03);
+        box-shadow: 0 10px 25px rgba(255, 200, 80, 0.4);
+    }
+
+    .emoji {
+        font-size: 38px;
+        margin: 10px 0;
+        animation: float 2.5s infinite ease-in-out;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    /* Better gradient background */
+    body {
+        background: linear-gradient(135deg, #ff7eb3, #ff758c, #ffb86c, #8be9fd, #6272a4);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .container {
+        animation: fadeIn 0.8s ease, shine 5s infinite alternate;
+    }
+
+    @keyframes shine {
+        0% { box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        100% { box-shadow: 0 0 35px rgba(255,255,255,0.4); }
+    }
+
 </style>
 </head>
 <body>
