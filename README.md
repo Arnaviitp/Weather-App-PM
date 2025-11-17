@@ -51,6 +51,3 @@ API Used: **Open-Meteo.com (Free, No Key Required)**
 - Reusable UI helpers
 
 ---
-
-## 📸 Screenshots (Add your own)
-
