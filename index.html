@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef3f8;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+      border: none;
+    }
+    .weather-box, .forecast-box {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f5f7fa;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+    .forecast-cards {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+    .card {
+      min-width: 120px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    .emoji {
+      font-size: 32px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Weather App (HTML + CSS + JS)</h2>
+    <p>Enter city / ZIP / landmark / coordinates (lat,lon)</p>
+
+    <div style="display:flex; gap:10px;">
+      <input id="locationInput" placeholder="e.g. Delhi, 10001, Taj Mahal, 19.07,72.87" style="flex:1;" />
+      <button onclick="searchWeather()">Search</button>
+      <button onclick="useMyLocation()" style="background:#444;">Use My Location</button>
+    </div>
+
+    <div id="status" style="margin-top:10px; color:#555;"></div>
+    <div id="error" style="margin-top:10px; color:red;"></div>
+
+    <div id="currentWeather" class="weather-box" style="display:none;"></div>
+    <div id="forecast" class="forecast-box" style="display:none;"></div>
+  </div>
+
+  <script>
+    const GEOCODE = "https://geocoding-api.open-meteo.com/v1/search";
+    const WEATHER = "https://api.open-meteo.com/v1/forecast";
+
+    function weatherIcon(code) {
+      const map = {
+        0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
+        45: "🌫️", 48: "🌫️",
+        51: "🌦️", 53: "🌦️", 55: "🌧️",
+        61: "🌧️", 63: "🌧️", 65: "⛈️",
+        71: "🌨️", 73: "🌨️", 75: "❄️",
+        95: "⛈️"
+      };
+      return map[code] || "🌈";
+    }
+
+    function resetUI() {
+      document.getElementById("status").innerText = "";
+      document.getElementById("error").innerText = "";
+      document.getElementById("currentWeather").style.display = "none";
+      document.getElementById("forecast").style.display = "none";
+    }
+
+    async function searchWeather() {
+      resetUI();
+      const q = document.getElementById("locationInput").value.trim();
+      if (!q) return (document.getElementById("error").innerText = "Enter a location.");
+
+      const coord = q.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+      if (coord) {
+        fetchWeather(parseFloat(coord[1]), parseFloat(coord[2]), q);
+        return;
+      }
+
+      document.getElementById("status").innerText = "Resolving location...";
+      try {
+        const res = await fetch(`${GEOCODE}?name=${encodeURIComponent(q)}&count=1&language=en&format=json`);
+        const data = await res.json();
+        if (!data.results || data.results.length === 0) throw new Error("Location not found.");
+
+        const place = data.results[0];
+        const name = `${place.name}, ${place.country}`;
+
+        fetchWeather(place.latitude, place.longitude, name);
+      } catch (err) {
+        document.getElementById("error").innerText = err.message;
+      }
+    }
+
+    async function fetchWeather(lat, lon, name) {
+      document.getElementById("status").innerText = "Fetching weather...";
+      try {
+        const url = `${WEATHER}?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=5`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        showCurrentWeather(data.current_weather, name);
+        showForecast(data.daily);
+        document.getElementById("status").innerText = "";
+      } catch (err) {
+        document.getElementById("error").innerText = "Failed to fetch weather.";
+      }
+    }
+
+    function showCurrentWeather(c, name) {
+      const box = document.getElementById("currentWeather");
+      box.style.display = "block";
+      box.innerHTML = `
+        <h3>${name}</h3>
+        <div style="font-size:40px">${weatherIcon(c.weathercode)}</div>
+        <h2>${Math.round(c.temperature)}°C</h2>
+        <p>Wind: ${c.windspeed} km/h<br>Direction: ${c.winddirection}°</p>
+      `;
+    }
+
+    function showForecast(d) {
+      const box = document.getElementById("forecast");
+      box.style.display = "block";
+
+      let cards = "";
+      for (let i = 0; i < d.time.length; i++) {
+        cards += `
+          <div class="card">
+            <div>${new Date(d.time[i]).toDateString()}</div>
+            <div class="emoji">${weatherIcon(d.weathercode[i])}</div>
+            <div>High: ${Math.round(d.temperature_2m_max[i])}°C</div>
+            <div>Low: ${Math.round(d.temperature_2m_min[i])}°C</div>
+            <div style="font-size:12px; color:#444">Precip: ${d.precipitation_sum[i]} mm</div>
+          </div>
+        `;
+      }
+
+      box.innerHTML = `<h3>5-Day Forecast</h3><div class="forecast-cards">${cards}</div>`;
+    }
+
+    function useMyLocation() {
+      resetUI();
+      if (!navigator.geolocation) return (document.getElementById("error").innerText = "Geolocation not supported.");
+
+      document.getElementById("status").innerText = "Detecting your location...";
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          fetchWeather(pos.coords.latitude, pos.coords.longitude, "Your Location");
+        },
+        err => {
+          document.getElementById("error").innerText = err.message;
+        }
+      );
+    }
+  </script>
+</body>
+</html>
