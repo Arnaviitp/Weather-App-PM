@@ -1,336 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Advanced Weather App</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
 
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-    }
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #ff7eb3,
+          #ff758c,
+          #ffb86c,
+          #8be9fd,
+          #6272a4
+        );
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+      }
 
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
 
-    .container {
-      max-width: 950px;
-      margin: 50px auto;
-      padding: 30px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-      animation: fadeIn .8s ease;
-    }
+      .container {
+        max-width: 950px;
+        margin: 50px auto;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        backdrop-filter: blur(12px);
+        animation: fadeIn 1s ease, shine 5s infinite alternate;
+      }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+        }
+      }
 
-    h1 { text-align: center; font-size: 3rem; }
+      @keyframes shine {
+        0% {
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        100% {
+          box-shadow: 0 0 35px rgba(255, 255, 255, 0.3);
+        }
+      }
 
-    /* Input Box */
-    input {
-      flex: 1;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      font-size: 1rem;
-    }
+      h1 {
+        font-size: 2.5rem;
+        text-align: center;
+        font-weight: 700;
+        margin: 0;
+      }
 
-    button {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      background: #ffcc00;
-      font-size: 1.1rem;
-      margin-left: 6px;
-      font-weight: bold;
-    }
+      .sub {
+        text-align: center;
+        margin-top: 5px;
+        font-size: 1.05rem;
+        opacity: 0.85;
+      }
 
-    button:hover {
-      background: #ffe066;
-    }
+      .top-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+        gap: 15px;
+      }
 
-    /* Autosuggest Dropdown */
-    #suggestions {
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 4px;
-      display: none;
-      position: absolute;
-      width: 92%;
-      z-index: 10;
-    }
+      .btn {
+        background: #ffcd4b;
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: 0.3s;
+        font-weight: 600;
+      }
 
-    .suggest-item {
-      padding: 8px;
-      cursor: pointer;
-      border-radius: 6px;
-    }
+      .btn:hover {
+        background: #ffe189;
+        transform: translateY(-3px);
+      }
 
-    .suggest-item:hover {
-      background: rgba(255,255,255,0.3);
-    }
+      input {
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        flex: 1;
+        font-size: 1rem;
+      }
 
-    .weather-card, .detail-card {
-      background: rgba(255,255,255,0.15);
-      padding: 20px;
-      border-radius: 15px;
-      margin-top: 20px;
-      text-align: center;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
 
-    .forecast-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-    }
+      #status {
+        color: #eee;
+        margin-top: 8px;
+      }
 
-    .forecast-card {
-      background: rgba(255,255,255,0.15);
-      border-radius: 15px;
-      padding: 15px;
-      text-align: center;
-      transition: 0.3s;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-    }
+      #error {
+        color: rgb(255, 80, 80);
+        margin-top: 8px;
+      }
 
-    .forecast-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(255,215,0,0.5);
-    }
+      .weather-section {
+        margin-top: 25px;
+        padding: 20px;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.15);
+      }
 
-    .emoji { font-size: 45px; }
+      .forecast-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+      }
 
-    /* Loader */
-    .loader {
-      margin-top: 15px;
-      width: 45px;
-      height: 45px;
-      border: 6px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 1s infinite linear;
-      display: none;
-    }
+      .card {
+        padding: 15px;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.18);
+        text-align: center;
+        backdrop-filter: blur(10px);
+        transition: 0.3s;
+      }
 
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(255, 215, 110, 0.4);
+      }
 
-    /* Clock */
-    .clock-box {
-      text-align: center;
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-      font-weight: 600;
-    }
-  </style>
-</head>
+      .emoji {
+        font-size: 38px;
+        margin: 10px 0;
+        animation: float 2.5s infinite ease-in-out;
+      }
 
-<body>
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-7px);
+        }
+      }
+    </style>
+  </head>
 
-  <div class="container">
-    <h1>Weather App</h1>
-    <div class="clock-box" id="clock"></div>
+  <body>
+    <div class="container">
+      <h1>Weather App</h1>
+      <p class="sub">Built by <strong>Arnav Anand</strong></p>
 
-    <!-- Input + Buttons -->
-    <div style="display:flex; gap:10px; position:relative;">
-      <input id="locationInput" placeholder="Delhi, 10001, Taj Mahal, 19.07,72.87" oninput="autoSuggest()">
-      <button onclick="searchWeather()">Search</button>
-      <button onclick="useMyLocation()" style="background:#444;color:white;">📍</button>
-    </div>
-    <div id="suggestions"></div>
-
-    <div class="loader" id="loader"></div>
-
-    <div id="error" style="color:#ff3333; margin-top:10px;"></div>
-
-    <div id="currentWeather" class="weather-card" style="display:none;"></div>
-    <div id="details" class="detail-card" style="display:none;"></div>
-
-    <h2 style="text-align:center; margin-top:20px;">Forecast</h2>
-    <div id="forecast" class="forecast-grid"></div>
-  </div>
-
-<script>
-const GEOCODE = "https://geocoding-api.open-meteo.com/v1/search";
-const WEATHER = "https://api.open-meteo.com/v1/forecast";
-const AIR = "https://air-quality-api.open-meteo.com/v1/air-quality";
-
-/*---------------- AUTO CLOCK ----------------*/
-setInterval(() => {
-  document.getElementById("clock").innerText = new Date().toLocaleString();
-}, 1000);
-
-/*---------------- AUTOSUGGEST ----------------*/
-async function autoSuggest() {
-  const q = locationInput.value.trim();
-  if (q.length < 2) { document.getElementById("suggestions").style.display = "none"; return; }
-
-  const url = `${GEOCODE}?name=${q}&count=5&language=en`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-  const box = document.getElementById("suggestions");
-
-  if (!data.results) { box.style.display = "none"; return; }
-
-  let html = "";
-  data.results.forEach(p => {
-    html += `<div class="suggest-item" onclick="selectSuggestion('${p.name}, ${p.country}')">${p.name}, ${p.country}</div>`;
-  });
-
-  box.innerHTML = html;
-  box.style.display = "block";
-}
-
-function selectSuggestion(name) {
-  document.getElementById("locationInput").value = name;
-  document.getElementById("suggestions").style.display = "none";
-}
-
-/*---------------- SEARCH WEATHER ----------------*/
-async function searchWeather() {
-  document.getElementById("error").innerText = "";
-  const q = locationInput.value.trim();
-  if (!q) return;
-
-  document.getElementById("loader").style.display = "block";
-
-  const coord = q.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
-  if (coord) return fetchWeather(parseFloat(coord[1]), parseFloat(coord[2]), "Chosen Location");
-
-  const res = await fetch(`${GEOCODE}?name=${q}&count=1&language=en`);
-  const data = await res.json();
-
-  if (!data.results) {
-    document.getElementById("error").innerText = "Location not found!";
-    return;
-  }
-
-  const p = data.results[0];
-  fetchWeather(p.latitude, p.longitude, `${p.name}, ${p.country}`);
-}
-
-/*---------------- FETCH WEATHER ----------------*/
-async function fetchWeather(lat, lon, name) {
-  const url = `${WEATHER}?latitude=${lat}&longitude=${lon}&current_weather=true&daily=sunrise,sunset,weathercode,temperature_2m_max,temperature_2m_min&hourly=uv_index,relative_humidity_2m,pressure_msl&timezone=auto&forecast_days=5`;
-
-  const airUrl = `${AIR}?latitude=${lat}&longitude=${lon}&hourly=pm10,pm2_5,us_aqi&timezone=auto`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-
-  const airRes = await fetch(airUrl);
-  const air = await airRes.json();
-
-  document.getElementById("loader").style.display = "none";
-
-  showCurrentWeather(data.current_weather, data.daily, name);
-  showDetails(data.hourly, air.hourly);
-  showForecast(data.daily);
-}
-
-/*---------------- CURRENT WEATHER ----------------*/
-function showCurrentWeather(c, d, name) {
-  document.getElementById("currentWeather").style.display = "block";
-
-  const sunrise = d.sunrise[0].split("T")[1];
-  const sunset = d.sunset[0].split("T")[1];
-
-  document.getElementById("currentWeather").innerHTML = `
-    <h2>${name}</h2>
-    <div class="emoji">${weatherEmoji(c.weathercode)}</div>
-    <h1>${Math.round(c.temperature)}°C</h1>
-    <p>Wind: ${c.windspeed} km/h | Direction: ${c.winddirection}°</p>
-    <p>Sunrise: ${sunrise} ⛅ | Sunset: ${sunset} 🌙</p>
-  `;
-}
-
-/*---------------- EXTRA DETAILS ----------------*/
-function showDetails(h, a) {
-  document.getElementById("details").style.display = "block";
-
-  const humidity = h.relative_humidity_2m[0];
-  const pressure = Math.round(h.pressure_msl[0]);
-  const uv = h.uv_index[0];
-
-  const aqi = a.us_aqi[0];
-
-  document.getElementById("details").innerHTML = `
-    <h3>More Weather Details</h3>
-    <p>Humidity: ${humidity}%</p>
-    <p>Pressure: ${pressure} hPa</p>
-    <p>UV Index: ${uv}</p>
-    <p><strong>AQI: ${aqi}</strong> ${aqiLevel(aqi)}</p>
-  `;
-}
-
-/* AQI Text */
-function aqiLevel(aqi) {
-  if (aqi <= 50) return "🟢 Good";
-  if (aqi <= 100) return "🟡 Moderate";
-  if (aqi <= 150) return "🟠 Unhealthy for some";
-  return "🔴 Very Unhealthy";
-}
-
-/*---------------- FORECAST ----------------*/
-function showForecast(d) {
-  const box = document.getElementById("forecast");
-  box.innerHTML = "";
-
-  for (let i = 0; i < d.time.length; i++) {
-    box.innerHTML += `
-      <div class="forecast-card">
-        <b>${new Date(d.time[i]).toDateString()}</b>
-        <div class="emoji">${weatherEmoji(d.weathercode[i])}</div>
-        <p>High: ${Math.round(d.temperature_2m_max[i])}°C</p>
-        <p>Low: ${Math.round(d.temperature_2m_min[i])}°C</p>
+      <!-- Top Buttons -->
+      <div class="top-buttons">
+        <button class="btn" onclick="showInfo()">ℹ️ Info</button>
       </div>
-    `;
-  }
-}
 
-/* Emoji Map */
-function weatherEmoji(code) {
-  const map = {
-    0:"☀️",1:"🌤️",2:"⛅",3:"☁️",
-    45:"🌫️",48:"🌫️",
-    51:"🌦️",53:"🌧️",55:"🌧️",
-    61:"🌧️",63:"🌧️",65:"⛈️",
-    71:"🌨️",73:"🌨️",75:"❄️",
-    95:"⛈️"
-  };
-  return map[code] || "🌈";
-}
+      <p style="margin-top: 20px">Enter city / ZIP / landmark / coordinates</p>
 
-/*---------------- USE MY LOCATION ----------------*/
-function useMyLocation() {
-  if (!navigator.geolocation) return alert("Location not supported");
+      <div class="actions">
+        <input
+          id="locationInput"
+          placeholder="e.g. Delhi, 10001, Taj Mahal, 19.07,72.87"
+        />
+        <button class="btn" onclick="searchWeather()">Search</button>
+        <button class="btn" style="background:#444;color:white" onclick="useMyLocation()">
+          Use My Location
+        </button>
+      </div>
 
-  navigator.geolocation.getCurrentPosition(pos => {
-    fetchWeather(pos.coords.latitude, pos.coords.longitude, "Your Location");
-  });
-}
-</script>
+      <div id="status"></div>
+      <div id="error"></div>
 
-</body>
+      <div id="currentWeather" class="weather-section" style="display: none"></div>
+
+      <div id="forecast" class="weather-section" style="display: none"></div>
+    </div>
+
+    <script>
+      const GEOCODE = "https://geocoding-api.open-meteo.com/v1/search";
+      const WEATHER = "https://api.open-meteo.com/v1/forecast";
+
+      function weatherIcon(code) {
+        const map = {
+          0: "☀️",
+          1: "🌤️",
+          2: "⛅",
+          3: "☁️",
+          45: "🌫️",
+          48: "🌫️",
+          51: "🌦️",
+          53: "🌦️",
+          55: "🌧️",
+          61: "🌧️",
+          63: "🌧️",
+          65: "⛈️",
+          71: "🌨️",
+          73: "🌨️",
+          75: "❄️",
+          95: "⛈️",
+        };
+        return map[code] || "🌈";
+      }
+
+      function resetUI() {
+        document.getElementById("status").innerText = "";
+        document.getElementById("error").innerText = "";
+        document.getElementById("currentWeather").style.display = "none";
+        document.getElementById("forecast").style.display = "none";
+      }
+
+      async function searchWeather() {
+        resetUI();
+        const q = document.getElementById("locationInput").value.trim();
+        if (!q) return (document.getElementById("error").innerText = "Enter a location.");
+
+        const coord = q.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+        if (coord) {
+          fetchWeather(parseFloat(coord[1]), parseFloat(coord[2]), q);
+          return;
+        }
+
+        document.getElementById("status").innerText = "Resolving location...";
+
+        try {
+          const res = await fetch(`${GEOCODE}?name=${encodeURIComponent(q)}&count=1&language=en&format=json`);
+          const data = await res.json();
+
+          if (!data.results || data.results.length === 0)
+            throw new Error("Location not found.");
+
+          const place = data.results[0];
+          const name = `${place.name}, ${place.country}`;
+
+          fetchWeather(place.latitude, place.longitude, name);
+        } catch (err) {
+          document.getElementById("error").innerText = err.message;
+        }
+      }
+
+      async function fetchWeather(lat, lon, name) {
+        document.getElementById("status").innerText = "Fetching weather...";
+
+        try {
+          const url = `${WEATHER}?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=5`;
+
+          const res = await fetch(url);
+          const data = await res.json();
+
+          showCurrentWeather(data.current_weather, name);
+          showForecast(data.daily);
+
+          document.getElementById("status").innerText = "";
+        } catch (err) {
+          document.getElementById("error").innerText = "Failed to fetch weather.";
+        }
+      }
+
+      function showCurrentWeather(c, name) {
+        const box = document.getElementById("currentWeather");
+        box.style.display = "block";
+        box.innerHTML = `
+          <h2>${name}</h2>
+          <div style="font-size:40px">${weatherIcon(c.weathercode)}</div>
+          <h2>${Math.round(c.temperature)}°C</h2>
+          <p>Wind: ${c.windspeed} km/h</p>
+          <p>Direction: ${c.winddirection}°</p>
+        `;
+      }
+
+      function showForecast(d) {
+        const box = document.getElementById("forecast");
+        box.style.display = "block";
+
+        let cards = "";
+        for (let i = 0; i < d.time.length; i++) {
+          cards += `
+            <div class="card">
+              <strong>${new Date(d.time[i]).toDateString()}</strong>
+              <div class="emoji">${weatherIcon(d.weathercode[i])}</div>
+              <div>High: ${Math.round(d.temperature_2m_max[i])}°C</div>
+              <div>Low: ${Math.round(d.temperature_2m_min[i])}°C</div>
+              <div style="font-size:13px; opacity:0.7">Precip: ${d.precipitation_sum[i]} mm</div>
+            </div>
+          `;
+        }
+
+        box.innerHTML = `<h2>5-Day Forecast</h2><div class="forecast-cards">${cards}</div>`;
+      }
+
+      function useMyLocation() {
+        resetUI();
+        if (!navigator.geolocation)
+          return (document.getElementById("error").innerText = "Geolocation not supported.");
+
+        document.getElementById("status").innerText = "Detecting location...";
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            fetchWeather(pos.coords.latitude, pos.coords.longitude, "Your Location");
+          },
+          (err) => {
+            document.getElementById("error").innerText = err.message;
+          }
+        );
+      }
+
+      function showInfo() {
+        alert(
+`PM Accelerator:
+
+The Product Manager Accelerator Program is designed to support PM professionals through every stage of their careers.
+
+From students seeking entry-level positions to Directors aiming for leadership roles, the program has successfully helped hundreds achieve their career goals.
+
+Our community is ambitious, committed, and continuously growing. Through the program, members learn, refine, and develop strong PM and leadership skills that form the foundation of their future success.`
+        );
+      }
+    </script>
+  </body>
 </html>
