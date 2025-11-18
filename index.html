@@ -1,347 +1,523 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weather App</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Weather App — Arnav Anand</title>
+  <style>
+    :root{
+      --glass: rgba(255,255,255,0.12);
+      --glass-2: rgba(255,255,255,0.18);
+      --accent: #ffcd4b;
+      --muted: rgba(255,255,255,0.85);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Poppins",system-ui,Segoe UI,Roboto,Arial;
+      color:#fff;
+      background: linear-gradient(135deg,#ff7eb3,#ff758c,#ffb86c,#8be9fd,#6272a4);
+      background-size:400% 400%;
+      animation: bg 18s ease infinite;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+    }
+    @keyframes bg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    .app{
+      max-width:980px;
+      margin:0 auto;
+      background:var(--glass);
+      border-radius:16px;
+      padding:20px;
+      backdrop-filter: blur(10px) saturate(120%);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.06);
+    }
 
-    <style>
-      body {
-        font-family: "Poppins", sans-serif;
-        background: linear-gradient(
-          135deg,
-          #ff7eb3,
-          #ff758c,
-          #ffb86c,
-          #8be9fd,
-          #6272a4
-        );
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
-        color: #fff;
-        margin: 0;
-        padding: 0;
-      }
+    /* header */
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    h1{margin:0;font-size:1.6rem;letter-spacing:0.2px}
+    .byline{opacity:0.95;font-size:0.95rem}
+    .controls{display:flex;gap:8px;align-items:center}
 
-      @keyframes gradientBG {
-        0% {
-          background-position: 0% 50%;
-        }
-        50% {
-          background-position: 100% 50%;
-        }
-        100% {
-          background-position: 0% 50%;
-        }
-      }
+    .btn{
+      background:var(--accent);
+      color:#222;
+      border:none;
+      padding:8px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .btn.secondary{background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.08)}
+    .btn:active{transform:translateY(1px)}
 
-      .container {
-        max-width: 950px;
-        margin: 50px auto;
-        padding: 30px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        backdrop-filter: blur(12px);
-        animation: fadeIn 1s ease, shine 5s infinite alternate;
-      }
+    /* search area */
+    .search-row{display:flex;gap:10px;margin-top:14px;align-items:center}
+    input[type="text"]{
+      flex:1;padding:12px 14px;border-radius:10px;border:none;background:rgba(255,255,255,0.06);color:#fff;font-size:1rem;
+      outline:2px solid transparent; transition: outline .14s;
+    }
+    input[type="text"]:focus{outline:2px solid rgba(255,255,255,0.12)}
+    .suggestions{
+      position:relative;
+    }
+    .suggest-list{
+      position:absolute;left:0;right:0;top:46px;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);border-radius:10px;padding:6px;z-index:40;
+      max-height:220px;overflow:auto;border:1px solid rgba(255,255,255,0.06)
+    }
+    .suggest-item{padding:8px;border-radius:8px;cursor:pointer}
+    .suggest-item:hover{background:rgba(255,255,255,0.06)}
 
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-        }
-      }
+    /* status */
+    .status-row{display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
+    .status{color:rgba(255,255,255,0.9)}
+    .error{color:#ffb3b3}
 
-      @keyframes shine {
-        0% {
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-        }
-        100% {
-          box-shadow: 0 0 35px rgba(255, 255, 255, 0.3);
-        }
-      }
+    /* main weather */
+    .main-grid{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:18px}
+    @media (max-width:880px){.main-grid{grid-template-columns:1fr;}}
+    .card{background:var(--glass-2);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.04)}
+    .current{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+    .temp{font-size:48px;font-weight:700}
+    .meta{opacity:0.95}
 
-      h1 {
-        font-size: 2.5rem;
-        text-align: center;
-        font-weight: 700;
-        margin: 0;
-      }
+    .tiny{font-size:0.9rem;opacity:0.95}
+    .emoji{font-size:46px}
 
-      .sub {
-        text-align: center;
-        margin-top: 5px;
-        font-size: 1.05rem;
-        opacity: 0.85;
-      }
+    .detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+    @media(max-width:520px){.detail-grid{grid-template-columns:1fr}}
 
-      .top-buttons {
-        display: flex;
-        justify-content: center;
-        margin-top: 15px;
-        gap: 15px;
-      }
+    .forecast{margin-top:14px}
+    .forecast-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
+    .fcard{background:rgba(255,255,255,0.04);padding:10px;border-radius:10px;text-align:center}
 
-      .btn {
-        background: #ffcd4b;
-        padding: 10px 18px;
-        border-radius: 10px;
-        border: none;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: 0.3s;
-        font-weight: 600;
-      }
+    /* loader */
+    .loader{width:40px;height:40px;border-radius:50%;border:5px solid rgba(255,255,255,0.12);border-top-color:var(--accent);animation:spin 1s linear infinite;display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
-      .btn:hover {
-        background: #ffe189;
-        transform: translateY(-3px);
-      }
+    /* unit toggle */
+    .unit-toggle{display:flex;gap:6px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
+    .unit-toggle button{padding:6px 8px;background:transparent;color:inherit;border:none;cursor:pointer}
+    .unit-toggle button.active{background:rgba(0,0,0,0.18)}
 
-      input {
-        padding: 12px;
-        border-radius: 10px;
-        border: none;
-        flex: 1;
-        font-size: 1rem;
-      }
+    /* info modal (simple) */
+    .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:80}
+    .modal{background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));padding:18px;border-radius:12px;max-width:720px;color:#fff;border:1px solid rgba(255,255,255,0.06)}
+    .modal h3{margin-top:0}
+    .close{float:right;cursor:pointer;padding:6px;border-radius:8px}
 
-      .actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-      }
-
-      #status {
-        color: #eee;
-        margin-top: 8px;
-      }
-
-      #error {
-        color: rgb(255, 80, 80);
-        margin-top: 8px;
-      }
-
-      .weather-section {
-        margin-top: 25px;
-        padding: 20px;
-        border-radius: 15px;
-        background: rgba(255, 255, 255, 0.15);
-      }
-
-      .forecast-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 15px;
-        margin-top: 15px;
-      }
-
-      .card {
-        padding: 15px;
-        border-radius: 15px;
-        background: rgba(255, 255, 255, 0.18);
-        text-align: center;
-        backdrop-filter: blur(10px);
-        transition: 0.3s;
-      }
-
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(255, 215, 110, 0.4);
-      }
-
-      .emoji {
-        font-size: 38px;
-        margin: 10px 0;
-        animation: float 2.5s infinite ease-in-out;
-      }
-
-      @keyframes float {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-7px);
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <h1>Weather App</h1>
-      <p class="sub">Built by <strong>Arnav Anand</strong></p>
-
-      <!-- Top Buttons -->
-      <div class="top-buttons">
-        <button class="btn" onclick="showInfo()">ℹ️ Info</button>
+    /* small helpers */
+    .muted{opacity:0.85}
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Weather application">
+    <div class="header">
+      <div class="brand">
+        <div>
+          <h1>Weather App</h1>
+          <div class="byline tiny">Built by <strong>Arnav Anand</strong></div>
+        </div>
       </div>
 
-      <p style="margin-top: 20px">Enter city / ZIP / landmark / coordinates</p>
-
-      <div class="actions">
-        <input
-          id="locationInput"
-          placeholder="e.g. Delhi, 10001, Taj Mahal, 19.07,72.87"
-        />
-        <button class="btn" onclick="searchWeather()">Search</button>
-        <button class="btn" style="background:#444;color:white" onclick="useMyLocation()">
-          Use My Location
-        </button>
+      <div class="controls">
+        <div id="clock" class="muted tiny" aria-live="polite"></div>
+        <div class="unit-toggle" title="Toggle temperature unit" aria-label="Temperature unit">
+          <button id="cBtn" class="active">°C</button>
+          <button id="fBtn">°F</button>
+        </div>
+        <button class="btn" id="infoBtn">ℹ️ Info</button>
       </div>
-
-      <div id="status"></div>
-      <div id="error"></div>
-
-      <div id="currentWeather" class="weather-section" style="display: none"></div>
-
-      <div id="forecast" class="weather-section" style="display: none"></div>
     </div>
 
-    <script>
-      const GEOCODE = "https://geocoding-api.open-meteo.com/v1/search";
-      const WEATHER = "https://api.open-meteo.com/v1/forecast";
+    <!-- Search -->
+    <div class="search-row">
+      <div class="suggestions" style="flex:1;position:relative">
+        <input id="locationInput" type="text" placeholder="City, ZIP, landmark or lat,lon (e.g. Delhi, 19.07,72.87)" aria-label="Location input">
+        <div id="suggestions" class="suggest-list" style="display:none"></div>
+      </div>
+      <button class="btn" onclick="searchWeather()">Search</button>
+      <button class="btn secondary" onclick="useMyLocation()">Use My Location</button>
+      <div id="loader" class="loader" role="status" aria-hidden="true"></div>
+    </div>
 
-      function weatherIcon(code) {
-        const map = {
-          0: "☀️",
-          1: "🌤️",
-          2: "⛅",
-          3: "☁️",
-          45: "🌫️",
-          48: "🌫️",
-          51: "🌦️",
-          53: "🌦️",
-          55: "🌧️",
-          61: "🌧️",
-          63: "🌧️",
-          65: "⛈️",
-          71: "🌨️",
-          73: "🌨️",
-          75: "❄️",
-          95: "⛈️",
-        };
-        return map[code] || "🌈";
-      }
+    <div class="status-row">
+      <div id="status" class="status muted"></div>
+      <div id="error" class="error"></div>
+    </div>
 
-      function resetUI() {
-        document.getElementById("status").innerText = "";
-        document.getElementById("error").innerText = "";
-        document.getElementById("currentWeather").style.display = "none";
-        document.getElementById("forecast").style.display = "none";
-      }
-
-      async function searchWeather() {
-        resetUI();
-        const q = document.getElementById("locationInput").value.trim();
-        if (!q) return (document.getElementById("error").innerText = "Enter a location.");
-
-        const coord = q.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
-        if (coord) {
-          fetchWeather(parseFloat(coord[1]), parseFloat(coord[2]), q);
-          return;
-        }
-
-        document.getElementById("status").innerText = "Resolving location...";
-
-        try {
-          const res = await fetch(`${GEOCODE}?name=${encodeURIComponent(q)}&count=1&language=en&format=json`);
-          const data = await res.json();
-
-          if (!data.results || data.results.length === 0)
-            throw new Error("Location not found.");
-
-          const place = data.results[0];
-          const name = `${place.name}, ${place.country}`;
-
-          fetchWeather(place.latitude, place.longitude, name);
-        } catch (err) {
-          document.getElementById("error").innerText = err.message;
-        }
-      }
-
-      async function fetchWeather(lat, lon, name) {
-        document.getElementById("status").innerText = "Fetching weather...";
-
-        try {
-          const url = `${WEATHER}?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=5`;
-
-          const res = await fetch(url);
-          const data = await res.json();
-
-          showCurrentWeather(data.current_weather, name);
-          showForecast(data.daily);
-
-          document.getElementById("status").innerText = "";
-        } catch (err) {
-          document.getElementById("error").innerText = "Failed to fetch weather.";
-        }
-      }
-
-      function showCurrentWeather(c, name) {
-        const box = document.getElementById("currentWeather");
-        box.style.display = "block";
-        box.innerHTML = `
-          <h2>${name}</h2>
-          <div style="font-size:40px">${weatherIcon(c.weathercode)}</div>
-          <h2>${Math.round(c.temperature)}°C</h2>
-          <p>Wind: ${c.windspeed} km/h</p>
-          <p>Direction: ${c.winddirection}°</p>
-        `;
-      }
-
-      function showForecast(d) {
-        const box = document.getElementById("forecast");
-        box.style.display = "block";
-
-        let cards = "";
-        for (let i = 0; i < d.time.length; i++) {
-          cards += `
-            <div class="card">
-              <strong>${new Date(d.time[i]).toDateString()}</strong>
-              <div class="emoji">${weatherIcon(d.weathercode[i])}</div>
-              <div>High: ${Math.round(d.temperature_2m_max[i])}°C</div>
-              <div>Low: ${Math.round(d.temperature_2m_min[i])}°C</div>
-              <div style="font-size:13px; opacity:0.7">Precip: ${d.precipitation_sum[i]} mm</div>
+    <div class="main-grid" style="margin-top:12px">
+      <!-- left: current + forecast -->
+      <div>
+        <div id="currentCard" class="card" style="display:none">
+          <div class="current">
+            <div>
+              <div id="placeName" class="tiny"></div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div class="emoji" id="curEmoji">🌤️</div>
+                <div>
+                  <div class="temp" id="curTemp">--°C</div>
+                  <div class="meta tiny" id="curSummary"></div>
+                </div>
+              </div>
             </div>
-          `;
-        }
+            <div style="margin-left:auto;text-align:right" class="muted tiny">
+              <div>Wind: <span id="windInfo">--</span></div>
+              <div id="sunInfo">Sunrise: -- | Sunset: --</div>
+            </div>
+          </div>
 
-        box.innerHTML = `<h2>5-Day Forecast</h2><div class="forecast-cards">${cards}</div>`;
+          <div class="detail-grid" style="margin-top:12px">
+            <div class="card" style="padding:10px">
+              <div class="tiny">Humidity</div>
+              <div id="humidity" style="font-weight:700">--%</div>
+            </div>
+            <div class="card" style="padding:10px">
+              <div class="tiny">Pressure</div>
+              <div id="pressure" style="font-weight:700">-- hPa</div>
+            </div>
+            <div class="card" style="padding:10px">
+              <div class="tiny">UV Index</div>
+              <div id="uv" style="font-weight:700">--</div>
+            </div>
+            <div class="card" style="padding:10px">
+              <div class="tiny">AQI (US)</div>
+              <div id="aqi" style="font-weight:700">--</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="forecastCard" class="card forecast" style="display:none">
+          <h3 style="margin:0 0 10px 0">5-Day Forecast</h3>
+          <div id="forecastGrid" class="forecast-grid"></div>
+        </div>
+      </div>
+
+      <!-- right: extras -->
+      <div>
+        <div id="extras" class="card">
+          <h3 style="margin:0 0 8px 0">Extras & Tools</h3>
+          <div class="tiny muted">Quick features: autosuggest • AQI • Sunrise/sunset • Unit toggle • Save favorites (local)</div>
+
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn secondary" id="saveFav">Save as Favorite</button>
+            <button class="btn secondary" id="showFavs">Show Favorites</button>
+            <button class="btn secondary" onclick="clearUI()">Clear</button>
+          </div>
+
+          <div id="favList" style="margin-top:12px;display:none"></div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="tiny muted">Tip: you can enter coordinates like <code>19.07,72.87</code> or a landmark name.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- info modal -->
+  <div id="modal" class="modal-back" role="dialog" aria-hidden="true">
+    <div class="modal" role="document">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <h3>PM Accelerator</h3>
+        <div class="close" onclick="closeModal()">✖</div>
+      </div>
+      <p>
+        The Product Manager Accelerator Program is designed to support PM professionals through every stage of their careers.
+        From students seeking entry-level positions to Directors aiming for leadership roles, the program has successfully helped hundreds achieve their career goals.
+      </p>
+      <p>
+        Our community is ambitious, committed, and continuously growing. Through the program, members learn, refine, and develop strong PM and leadership skills that form the foundation of their future success.
+      </p>
+      <div style="text-align:right;margin-top:6px">
+        <button class="btn" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------------- constants ---------------- */
+const GEOCODE = "https://geocoding-api.open-meteo.com/v1/search";
+const WEATHER = "https://api.open-meteo.com/v1/forecast";
+const AIR = "https://air-quality-api.open-meteo.com/v1/air-quality";
+
+/* ---------------- ui refs ---------------- */
+const locationInput = document.getElementById("locationInput");
+const suggestionsEl = document.getElementById("suggestions");
+const loader = document.getElementById("loader");
+const status = document.getElementById("status");
+const error = document.getElementById("error");
+const currentCard = document.getElementById("currentCard");
+const forecastCard = document.getElementById("forecastCard");
+const forecastGrid = document.getElementById("forecastGrid");
+const placeName = document.getElementById("placeName");
+const curEmoji = document.getElementById("curEmoji");
+const curTemp = document.getElementById("curTemp");
+const curSummary = document.getElementById("curSummary");
+const windInfo = document.getElementById("windInfo");
+const sunInfo = document.getElementById("sunInfo");
+const humidityEl = document.getElementById("humidity");
+const pressureEl = document.getElementById("pressure");
+const uvEl = document.getElementById("uv");
+const aqiEl = document.getElementById("aqi");
+const clockEl = document.getElementById("clock");
+const infoBtn = document.getElementById("infoBtn");
+const modal = document.getElementById("modal");
+const favList = document.getElementById("favList");
+const saveFavBtn = document.getElementById("saveFav");
+const showFavsBtn = document.getElementById("showFavs");
+const cBtn = document.getElementById("cBtn");
+const fBtn = document.getElementById("fBtn");
+
+/* ---------------- state ---------------- */
+let lastData = null; // store fetched data
+let unit = "C"; // or "F"
+
+/* ---------------- clock & theme ---------------- */
+function updateClock(){
+  const now = new Date();
+  clockEl.textContent = now.toLocaleString();
+  // auto theme: dark after 18:00 or before 6:00
+  const hour = now.getHours();
+  if(hour >= 18 || hour < 6){
+    document.body.style.background = "linear-gradient(135deg,#0f172a,#0b1220,#001122,#06202a,#0a1a2a)";
+  } else {
+    document.body.style.background = "linear-gradient(135deg,#ff7eb3,#ff758c,#ffb86c,#8be9fd,#6272a4)";
+  }
+}
+setInterval(updateClock,1000);
+updateClock();
+
+/* ---------------- autosuggest ---------------- */
+let suggestTimer = null;
+locationInput.addEventListener("input", ()=> {
+  const q = locationInput.value.trim();
+  if(suggestTimer) clearTimeout(suggestTimer);
+  if(!q || q.length < 2){ suggestionsEl.style.display='none'; return; }
+  suggestTimer = setTimeout(()=> doSuggest(q), 300);
+});
+async function doSuggest(q){
+  try{
+    const res = await fetch(`${GEOCODE}?name=${encodeURIComponent(q)}&count=5&language=en`);
+    const j = await res.json();
+    if(!j.results || j.results.length===0){ suggestionsEl.style.display='none'; return; }
+    suggestionsEl.innerHTML = j.results.map(r => `<div class="suggest-item" data-lat="${r.latitude}" data-lon="${r.longitude}">${r.name}, ${r.admin1 ? r.admin1 + ', ' : ''}${r.country}</div>`).join("");
+    suggestionsEl.style.display='block';
+    Array.from(suggestionsEl.children).forEach(it => {
+      it.onclick = ()=> {
+        const lat = it.dataset.lat, lon = it.dataset.lon;
+        locationInput.value = it.textContent;
+        suggestionsEl.style.display='none';
+        fetchWeather(Number(lat), Number(lon), it.textContent);
       }
+    });
+  }catch(e){
+    suggestionsEl.style.display='none';
+  }
+}
 
-      function useMyLocation() {
-        resetUI();
-        if (!navigator.geolocation)
-          return (document.getElementById("error").innerText = "Geolocation not supported.");
+/* ---------------- search flow ---------------- */
+async function searchWeather(){
+  clearUI(false);
+  const q = locationInput.value.trim();
+  if(!q){ error.textContent = "Enter a location or coordinates."; return; }
+  // coords?
+  const coord = q.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+  if(coord){
+    const lat = parseFloat(coord[1]), lon = parseFloat(coord[2]);
+    return fetchWeather(lat,lon,q);
+  }
+  // call geocode
+  status.textContent = "Resolving location…";
+  loader.style.display = "inline-block";
+  try{
+    const res = await fetch(`${GEOCODE}?name=${encodeURIComponent(q)}&count=1&language=en`);
+    const j = await res.json();
+    if(!j.results || j.results.length===0) throw new Error("Location not found");
+    const p = j.results[0];
+    fetchWeather(p.latitude, p.longitude, `${p.name}, ${p.country}`);
+  }catch(err){
+    error.textContent = err.message || "Failed to resolve location";
+    loader.style.display = "none";
+    status.textContent = "";
+  }
+}
 
-        document.getElementById("status").innerText = "Detecting location...";
+/* ---------------- fetch weather + air ---------------- */
+async function fetchWeather(lat, lon, displayName){
+  clearUI(false);
+  status.textContent = "Fetching weather…";
+  loader.style.display = "inline-block";
+  try{
+    const forecastUrl = `${WEATHER}?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum&hourly=relative_humidity_2m,pressure_msl,uv_index&timezone=auto&forecast_days=5`;
+    const airUrl = `${AIR}?latitude=${lat}&longitude=${lon}&hourly=pm10,pm2_5,us_aqi&timezone=auto`;
+    const [wfRes, airRes] = await Promise.all([fetch(forecastUrl), fetch(airUrl)]);
+    const wf = await wfRes.json();
+    const air = await airRes.json();
+    lastData = {wf, air, lat, lon, displayName};
+    renderAll();
+    status.textContent = "";
+  }catch(e){
+    error.textContent = "Failed to fetch weather.";
+  }finally{
+    loader.style.display = "none";
+  }
+}
 
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            fetchWeather(pos.coords.latitude, pos.coords.longitude, "Your Location");
-          },
-          (err) => {
-            document.getElementById("error").innerText = err.message;
-          }
-        );
-      }
+/* ---------------- render logic ---------------- */
+function weatherIcon(code){
+  const map = {0:"☀️",1:"🌤️",2:"⛅",3:"☁️",45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌧️",61:"🌧️",63:"🌧️",65:"⛈️",71:"🌨️",73:"🌨️",75:"❄️",95:"⛈️"};
+  return map[code]||"🌈";
+}
+function toF(c){ return Math.round((c * 9/5) + 32); }
+function showTemp(c){
+  if(unit === "C") return `${Math.round(c)}°C`;
+  return `${toF(c)}°F`;
+}
 
-      function showInfo() {
-        alert(
-`PM Accelerator:
+function renderAll(){
+  if(!lastData) return;
+  const {wf, air, displayName} = lastData;
+  const cur = wf.current_weather;
+  // place & current
+  placeName.textContent = displayName || "Selected location";
+  curEmoji.textContent = weatherIcon(cur.weathercode);
+  curTemp.textContent = showTemp(cur.temperature);
+  curSummary.textContent = `Weather code ${cur.weathercode} • ${cur.temperature}°C`;
+  windInfo.textContent = `${cur.windspeed} km/h, ${cur.winddirection}°`;
+  // sunrise/sunset (daily arrays)
+  const sunrise = wf.daily.sunrise?.[0] ? new Date(wf.daily.sunrise[0]).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : "--";
+  const sunset = wf.daily.sunset?.[0] ? new Date(wf.daily.sunset[0]).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : "--";
+  sunInfo.textContent = `Sunrise: ${sunrise} | Sunset: ${sunset}`;
 
-The Product Manager Accelerator Program is designed to support PM professionals through every stage of their careers.
+  // hourly first values for humidity/pressure/uv (if present)
+  const hr = wf.hourly || {};
+  humidityEl.textContent = hr.relative_humidity_2m?.[0] ? `${Math.round(hr.relative_humidity_2m[0])}%` : "--";
+  pressureEl.textContent = hr.pressure_msl?.[0] ? `${Math.round(hr.pressure_msl[0])} hPa` : "--";
+  uvEl.textContent = hr.uv_index?.[0] ?? "--";
 
-From students seeking entry-level positions to Directors aiming for leadership roles, the program has successfully helped hundreds achieve their career goals.
+  // AQI - use first hourly us_aqi if present
+  const airHourly = air?.hourly || {};
+  aqiEl.textContent = airHourly.us_aqi?.[0] ?? "--";
 
-Our community is ambitious, committed, and continuously growing. Through the program, members learn, refine, and develop strong PM and leadership skills that form the foundation of their future success.`
-        );
-      }
-    </script>
-  </body>
+  // show current card
+  currentCard.style.display = "block";
+
+  // forecast cards
+  const d = wf.daily;
+  forecastGrid.innerHTML = "";
+  if(d && d.time){
+    for(let i=0;i<d.time.length;i++){
+      const date = new Date(d.time[i]);
+      const day = date.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+      const max = d.temperature_2m_max[i];
+      const min = d.temperature_2m_min[i];
+      const code = d.weathercode[i];
+      const precip = d.precipitation_sum?.[i] ?? 0;
+      const card = document.createElement("div");
+      card.className = "fcard";
+      card.innerHTML = `<div style="font-weight:700">${day}</div>
+                        <div style="font-size:28px;margin:6px 0">${weatherIcon(code)}</div>
+                        <div class="tiny">High: <strong>${showTemp(max)}</strong></div>
+                        <div class="tiny">Low: <strong>${unit==='C'?Math.round(min)+ '°C': toF(min)+'°F'}</strong></div>
+                        <div class="tiny" style="opacity:0.85;margin-top:6px">Precip: ${precip} mm</div>`;
+      forecastGrid.appendChild(card);
+    }
+    forecastCard.style.display = "block";
+  }
+}
+
+/* ---------------- use my location ---------------- */
+function useMyLocation(){
+  clearUI(false);
+  if(!navigator.geolocation){ error.textContent = "Geolocation not supported."; return; }
+  status.textContent = "Detecting your location…";
+  loader.style.display = "inline-block";
+  navigator.geolocation.getCurrentPosition(pos=>{
+    fetchWeather(pos.coords.latitude, pos.coords.longitude, "Your Location");
+  }, err=>{
+    error.textContent = err.message || "Unable to get location";
+    loader.style.display = "none";
+    status.textContent = "";
+  });
+}
+
+/* ---------------- clear UI ---------------- */
+function clearUI(clearInput=true){
+  status.textContent = "";
+  error.textContent = "";
+  loader.style.display = "none";
+  currentCard.style.display = "none";
+  forecastCard.style.display = "none";
+  if(clearInput) locationInput.value = "";
+}
+
+/* ---------------- favorites (localStorage) ---------------- */
+function loadFavs(){ try{ return JSON.parse(localStorage.getItem('wa_favs')||'[]') }catch(e){return []}}
+function saveFavs(arr){ localStorage.setItem('wa_favs', JSON.stringify(arr)) }
+saveFavBtn.onclick = ()=>{
+  if(!lastData){ alert("No location to save."); return; }
+  const favs = loadFavs();
+  favs.push({name:lastData.displayName,lat:lastData.lat,lon:lastData.lon,ts:Date.now()});
+  saveFavs(favs);
+  alert("Saved to favorites");
+}
+showFavsBtn.onclick = ()=>{
+  const favs = loadFavs();
+  if(!favs.length){ favList.style.display='block'; favList.innerHTML = "<div class='tiny muted'>No favorites yet</div>"; return; }
+  favList.style.display='block';
+  favList.innerHTML = favs.map((f,i)=>`<div style="padding:8px;border-radius:8px;background:rgba(0,0,0,0.12);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+    <div><strong>${f.name}</strong><div class="tiny muted">${new Date(f.ts).toLocaleString()}</div></div>
+    <div style="display:flex;gap:8px"><button class="btn secondary" onclick="loadFav(${i})">Load</button><button class="btn secondary" onclick="delFav(${i})">Delete</button></div>
+  </div>`).join('');
+}
+window.loadFav = function(i){
+  const favs = loadFavs();
+  if(!favs[i]) return;
+  const f = favs[i];
+  fetchWeather(f.lat, f.lon, f.name);
+}
+window.delFav = function(i){
+  const favs = loadFavs();
+  favs.splice(i,1);
+  saveFavs(favs);
+  showFavsBtn.click();
+}
+
+/* ---------------- modal ---------------- */
+infoBtn.onclick = ()=>{ modal.style.display = 'flex'; modal.setAttribute('aria-hidden','false'); }
+function closeModal(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
+
+/* ---------------- unit toggle ---------------- */
+cBtn.onclick = ()=>{
+  unit='C'; cBtn.classList.add('active'); fBtn.classList.remove('active');
+  if(lastData) renderAll();
+}
+fBtn.onclick = ()=>{
+  unit='F'; fBtn.classList.add('active'); cBtn.classList.remove('active');
+  if(lastData) renderAll();
+}
+
+/* ---------------- keyboard: enter search ---------------- */
+locationInput.addEventListener("keydown", (e)=> {
+  if(e.key === "Enter") searchWeather();
+});
+
+/* init: show small placeholder */
+status.textContent = "Ready — enter a location or use my location.";
+</script>
+</body>
 </html>
