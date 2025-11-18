@@ -90,9 +90,6 @@ Click the info button to open the modal.
 **Cities:**  
 Delhi, Mumbai, London, Tokyo
 
-**Landmarks:**  
-Statue of Unity, Gateway of India
-
 **Coordinates:**  
 28.6,77.2  
 19.07,72.87
