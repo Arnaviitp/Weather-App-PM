@@ -118,7 +118,6 @@ The UI adapts smoothly across:
 ## 👤 Developer: Arnav Anand
 
 Part of learning goals in:  
-- Product Management  
 - Frontend development  
 - API integration  
 - UI/UX design
